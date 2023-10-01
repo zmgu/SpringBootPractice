@@ -2,12 +2,14 @@ package com.zmgu.myproj.controller;
 
 import com.zmgu.myproj.domain.Board;
 import com.zmgu.myproj.repository.BoardRepository;
+import com.zmgu.myproj.service.BoardService;
 import com.zmgu.myproj.validator.BoardValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +23,9 @@ public class BoardController {
 
     @Autowired
     private BoardRepository boardRepository;
+
+    @Autowired
+    private BoardService boardService;
 
     @Autowired
     private BoardValidator boardValidator;
@@ -52,13 +57,16 @@ public class BoardController {
     }
 
     @PostMapping("/form")
-    public String greetingSubmit(@Valid Board board, BindingResult bindResult) {
+    public String psotForm(@Valid Board board, BindingResult bindResult, Authentication authentication) {
         boardValidator.validate(board, bindResult);
 
         if(bindResult.hasErrors()){
             return "board/form";
         }
-        boardRepository.save(board);
+
+        String username = authentication.getName();
+        boardService.save(username, board);
+//        boardRepository.save(board);
         return "redirect:/board/list";
     }
 
